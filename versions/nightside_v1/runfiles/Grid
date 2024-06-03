@@ -1,0 +1,78 @@
+---------------grid structure-----------------
+#GRIDGEOMETRY
+spherical_lnr		TypeGeometry
+
+#GRID
+20                      proc_dims(1)           nRootBlockX
+8                       proc_dims(2)           nRootBlockY
+8                       proc_dims(3),          nRootBlockZ
+-64                    x1            xMin
+  6                    x2            xMax
+-128                    y1            yMin
+ 128                    y2            yMax
+-128                    z1            zMin
+ 128                    z2            zMax
+
+GRIDBLOCKALL
+1100			MaxBlock
+
+#LIMITRADIUS
+0.8                     rMin
+214.1                   rMax > (sqrt(100^2+100^2+100^2))
+
+#GRIDLEVEL
+2                       nLevelArea
+initial                 NameArea
+
+#GRIDLEVEL
+1               nLevelArea
+box             tail box
+-5.5            xMinBox
+-1.1            yMinBox
+-0.8            zMinBox
+-0.5            xMaxBox
+1.1             yMaxBox
+1.2             zMaxBox
+
+#GRIDLEVEL
+1               nLevelArea
+box_gen         global low-altitude
+0.8             rmin            xMinBox
+0.0             LonMin          yMinBox
+-60.0           LatMin          zMinBox
+2.5             rmax            xMaxBox
+360.0           LonMax          yMaxBox
+60.0            LatMax          zMaxBox
+
+#GRIDLEVEL
+1               nLevelArea
+box_gen         east dayside lvl1
+1.2             rmin            xMinBox
+0.0             LonMin          yMinBox
+-60.0           LatMin          zMinBox
+2.5             rmax            xMaxBox
+75.0           LonMax          yMaxBox
+60.0            LatMax          zMaxBox
+
+#GRIDLEVEL
+1               nLevelArea
+box_gen         west dayside lvl1
+1.2             rmin            xMinBox
+285.0             LonMin          yMinBox
+-60.0           LatMin          zMinBox
+2.5             rmax            xMaxBox
+360.0           LonMax          yMaxBox
+60.0            LatMax          zMaxBox
+
+#GRIDLEVEL
+1               nLevelArea
+box_gen         terminator gap
+0.8             rmin            xMinBox
+0.0             LonMin          yMinBox
+-60.0           LatMin          zMinBox
+1.45             rmax            xMaxBox
+360.0           LonMax          yMaxBox
+60.0            LatMax          zMaxBox
+
+----------------end grid structure--------------
+
