@@ -2,9 +2,8 @@
 T
 
 #DESCRIPTION
-Heritage from the MESSENGER M2 flyby run using the new layered inner boundary condition
-Southward IMF standard run settings
-Periapsis (low Alfven Mach number) conditions
+Name:PARAM.in.ss
+Multifluid solar wind (H+ and He2+)
 
 #PLANET
 Mercury                NamePlanet
@@ -83,33 +82,24 @@ T                       UseHyperbolicDivb
 #COORDSYSTEM
 GSE                     TypeCoordinate
 
-#BODY
+BODY
 T                       UseBody
 0.8                     rBody      [rPlanet]
 3.5                     rCurrents  [rPlanet]
-39                      BodyNDim   [/cc] (fluid1)
+0                      BodyNDim   [/cc] (fluid1)
 2.32e5                  BodyTDim   [K] (fluid1)
 0                       BodyNDim   [/cc] (fluid2)
 2.32e5                  BodyTDim   [K] (fluid2)
 
-! use BodyNDim, BodyTDim only, rbody as a parameter for plot
-BODY
+#BODY 
 F
+! use BodyNDim, BodyTDim only, rbody as a parameter for plot
 
-#SOLARWIND
-36.0	                SwNDim   [/cc]
-8.70e4                  SwTDim   [K] (3.8nPa/(1.38e-23*2/cc))/1.2
--500.0                  SwUxDim  [km/s]
-0.0                     SwUyDim  [km/s]
-0.0                     SwUzDim  [km/s]
-0.0                     SwBxDim  [nT]
-0.0                     SwByDim  [nT]
-23.0                    SwBzDim  [nT]
 
 #PLASMA
-1.0                     FluidMass [amu]
+4.0                     FluidMass [amu]
 4.0                     FluidMass [amu] (He2+)
-1.0                     AverageIonCharge [e]
+2.0                     AverageIonCharge [e]
 2.0                     AverageIonCharge [e] (He2+)
 1.0                 ElectronTemperatureRatio
 
@@ -122,14 +112,19 @@ nul                     TypeInitKrylov (nul, old, explicit, scaled)
 0.001                   ErrorMaxKrylov
 200                     MaxMatvecKrylov
 
+#RESISTIVITY
+T                       UseResistivity
+user                    TypeResistivity
+0.0                     Eta0Si
+
 #MINIMUMPRESSURE
-0.001                   pMinDim (fluid1)
-0.001                   pMinDim (fluid2)
+0.001                      pMinDim (fluid1)
+0.001                  pMinDim (fluid2)
 0.001                   PeMinDim for electron pressure
 
 #MINIMUMDENSITY
-0.01                     RhoMinDim (fluid1)
-0.01                     RhoMinDim (fluid2)
+0.001                     RhoMinDim (fluid1)
+0.001                     RhoMinDim (fluid2)
 
 #NONCONSERVATIVE
 F                       UseNonConservative
@@ -142,12 +137,15 @@ one                     TypeRestartOutFile
 
 ! Grid structure info
 #INCLUDE
-Grid5
+Grid
+
+#IOUNITS
+PLANETARY                 TypeIoUnit
 
 ----------------BC-----------------
 #OUTERBOUNDARY
 fixedb1                 TypeCellBc1
-none                    TypeCellBc2
+fixed                   TypeCellBc2
 periodic                TypeCellBc3
 periodic                TypeCellBc4
 periodic                TypeCellBc5
@@ -162,21 +160,39 @@ float                   TypeBcZmin
 float                   TypeBcZmax
 
 #BOUNDARYSTATE
-coord1min solid	        StringBoundary
-5.0                     BoundaryStateDim_V Rho
-0.0                     BoundaryStateDim_V Ux
-0.0                     BoundaryStateDim_V Uy
-0.0                     BoundaryStateDim_V Uz
+xmaxbox	        StringBoundary
+15.0                    BoundaryStateDim_V HpRho
+-500.0                  BoundaryStateDim_V HpUx
+0.0                     BoundaryStateDim_V HpUy
+0.0                     BoundaryStateDim_V HpUz
+0.0                     BoundaryStateDim_V Bx
+0.0                     BoundaryStateDim_V By
+25.0                    BoundaryStateDim_V Bz
+0.02                   BoundaryStateDim_V Pe
+0.02                    BoundaryStateDim_V HpP
+15.0			BoundaryStateDim_V He2pRho
+-500.0			BoundaryStateDim_V He2pUx
+0.0                     BoundaryStateDim_V He2pUy
+0.0                     BoundaryStateDim_V He2pUz
+0.02                     BoundaryStateDim_V He2pP
+0.0                     BoundaryStateDim_V Hyp
+
+#BOUNDARYSTATE
+coord1min solid         StringBoundary
+5.0                     BoundaryStateDim_V HpRho
+0.0                     BoundaryStateDim_V HpUx
+0.0                     BoundaryStateDim_V HpUy
+0.0                     BoundaryStateDim_V HpUz
 0.0                     BoundaryStateDim_V Bx
 0.0                     BoundaryStateDim_V By
 0.0                     BoundaryStateDim_V Bz
 0.025                   BoundaryStateDim_V Pe
-0.125                   BoundaryStateDim_V p
-0.25			BoundaryStateDim_V He2pRho
-0.0			BoundaryStateDim_V He2pUx
+0.125                   BoundaryStateDim_V HpP
+5.0                    BoundaryStateDim_V He2pRho
+0.0                     BoundaryStateDim_V He2pUx
 0.0                     BoundaryStateDim_V He2pUy
 0.0                     BoundaryStateDim_V He2pUz
-0.031                   BoundaryStateDim_V He2pp
+0.125                   BoundaryStateDim_V He2pP
 0.0                     BoundaryStateDim_V Hyp
 
 #SOLIDSTATE
@@ -192,13 +208,6 @@ sphere                  TypeSolidGeometry
 +init +ic		StringSwitch
 
 #USERINPUTBEGIN --------------------
-
-#PROTONHELIUMRATIO
-0.9			HpHe2pRatio
-
-#SWTEMPS
-8.70e4			HpSWTemp [K]
-8.70e4			He2pSWTemp [K]
 
 #PEOVERP
 0.2
@@ -262,7 +271,7 @@ RESISTIVEPLANET
 
 #ELECTRONENTROPY
 F                       UseElectronEntropy
-T                       UseElectronEnergy
+F                       UseElectronEnergy
 
 #TIMESTEPPING
 1                       nStage
@@ -346,18 +355,24 @@ RAW                     StringLogfile
 T
 
 #SAVEPLOT
-2                       nPlotFiles
+1                       nPlotFiles
 y=0 VAR idl_ascii       StringPlot
-100                    DnSavePlot
+10                    DnSavePlot
 -1.                     DtSavePlot
 -1.                     Dx
-{MHD} b1x b1y b1z eta divb dt dx hall    NameVars
+HpRho HpP He2pRho He2pP Pe bx by bz hpux hpuy hpuz he2pux he2puy he2puz   NameVars
 {default}                       NamePars
 3d VAR tec             plot_strin              StringPlot
 500000                    DnSavePlot
 -1                      DtSavePlot
 rho ux uy uz b1x b1y b1z bx by bz p eta jx jy jz dt dtblk cons impl dx     NameVars
 {default} rbody                 NamePars
+y=0 VAR idl_ascii       StringPlot
+10                    DnSavePlot
+-1.                     DtSavePlot
+-1.                     Dx
+{MHD} b1x b1y b1z eta divb dt dx hall    NameVars
+{default}                       NamePars
 
 #END_COMP GM ---------------------------------------
 
