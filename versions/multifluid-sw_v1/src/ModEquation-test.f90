@@ -27,10 +27,10 @@ module ModVarIndexes
   integer, parameter :: nFluid    = 1
   integer, parameter :: nIonFluid = 1        ! Last individual ion fluid
   logical, parameter :: IsMhd     = .false.   ! First total ion fluid obeys MHD
-  real               :: MassFluid_I(1:nFluid) = [ 1.0 ]
+  real               :: MassFluid_I(nFluid) = [ 1.0 ]
 
   ! Fluids:
-  character (len=4), parameter :: NameFluid_I(1:nFluid) = [ 'Hp  ' ]
+  character (len=4), parameter :: NameFluid_I(nFluid) = [ 'Hp  ' ]
 
   ! Named indexes for State_VGB and other variables
   ! These indexes should go subsequently, from 1 to nVar+1.
