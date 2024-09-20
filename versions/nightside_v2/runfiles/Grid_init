@@ -1,0 +1,57 @@
+---------------grid structure-----------------
+#GRIDGEOMETRY
+spherical_lnr		TypeGeometry
+
+#GRID
+10			proc_dims(1)           nRootBlockX
+4                       proc_dims(2)           nRootBlockY
+4                       proc_dims(3),          nRootBlockZ
+-64                    x1            xMin
+  6                    x2            xMax
+-128                    y1            yMin
+ 128                    y2            yMax
+-128                    z1            zMin
+ 128                    z2            zMax
+
+GRIDBLOCKALL
+1100			MaxBlock
+
+#LIMITRADIUS
+0.8                     rMin
+214.1                   rMax > (sqrt(100^2+100^2+100^2))
+
+#GRIDLEVEL
+2                      nLevelArea
+initial                 NameArea
+
+#GRIDLEVEL
+1               nLevelArea
+box             magnetosphere
+-16.0            xMinBox
+-12.0            yMinBox
+-12.0            zMinBox
+4               xMaxBox
+12             yMaxBox
+12             zMaxBox
+
+#GRIDLEVEL
+2               nLevelArea
+box             NameArea
+-5.0            xMinBox
+-1.0            yMinBox
+-0.7            zMinBox
+-1.3            xMaxBox
+1.0             yMaxBox
+0.7             zMaxBox
+
+#GRIDLEVEL
+2               nLevelArea
+box_gen         TypeRegion
+1.05             rmin            xMinBox
+0.0             LonMin          yMinBox
+-90.0           LatMin          zMinBox
+1.2             rmax            xMaxBox
+360.0           LonMax          yMaxBox
+90.0            LatMax          zMaxBox
+----------------end grid structure--------------
+
