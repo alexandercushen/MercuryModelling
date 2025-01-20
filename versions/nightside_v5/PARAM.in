@@ -1,0 +1,511 @@
+#ECHO
+T
+
+#DESCRIPTION
+MESSENGER M2 flyby run using the new layered inner boundary condition
+
+#PLANET
+Ganymede                NamePlanet
+2439000                 RadiusPlanet [m]
+1.4819E+23              MassPlanet   [kg]
+0.0                     OmegaPlanet  [radian/s]
+0.0                     TiltRotation [degree]
+DIPOLE                  TypeBField
+0.0                     MagAxisThetaGeo [degree]
+289.1550                MagAxisPhiGeo   [degree]
+-200.0E-9            DipoleStrength  [T]
+
+#ROTATION
+F               UseRotation
+
+#INCLUDE
+RESTART.in              NameRestartFile
+
+#MAGNETICCENTER
+0.0              MagCenterX
+0.0             MagCenterY
+0.2             MagCenterZ
+
+#TIMEACCURATE
+T               DoTimeAccurate
+
+CPUTIMEMAX
+14000.                  CpuTimeMax
+
+#LAYOUT
+GM    0     -1   1   1
+PC    0     -1   1   1
+
+#CHECKTIMESTEP
+F		DoCheckTimeStep
+10		DnCheckTimeStep (2 or more)
+-1.0		TimeStepMin [s] (negative value means SessionTime/10,000,000)
+
+#CHECKSTOP
+T               DoCheckStop
+-1000           DnCheckStop
+0.1             DtCheckStop
+
+
+#SAVERESTART
+T                   DoSaveRestart
+-10000               DnSaveRestart
+2                 DtSaveRestart
+
+#CPUTIMEMAX
+396000.0         CpuTimeMax
+
+#COUPLE2
+GM                      NameCompMaster
+PC                      NameCompSlave
+-1                      DnCouple
+0.01                     DtCouple
+
+COMPONENT
+PC                      NameComp
+F                       UseComp
+
+COUPLETIME
+GM                      NameComp
+F                       DoCoupleOnTime
+
+COUPLETIME
+PC                      NameComp
+F                       DoCoupleOnTime
+
+#BEGIN_COMP GM ---------------------------------------
+
+
+DOAMR
+T                       DoAmr (the rest is only read if true)
+1                       DnAmr
+-1.0                    DtAmr
+F                       IsStrictAmr
+
+#GRIDBLOCK
+100             MaxBlock
+
+GRIDBLOCKIMPL
+10             MaxBlockImpl per processor
+
+#INCLUDE
+GM/restartIN/restart.H
+
+
+#HYPERBOLICDIVB
+T                       UseHyperbolicDivb
+125.0                   SpeedHypDim
+0.2                     HypDecay
+
+#COORDSYSTEM
+GSE                     TypeCoordinate
+
+#BODY
+T                       UseBody
+0.8                     rBody      [rPlanet]
+3.5                     rCurrents  [rPlanet]
+39                      BodyNDim   [/cc]
+2.32e5                  BodyTDim   [K]
+
+! use BodyNDim, BodyTDim only, rbody as a parameter for plot
+#BODY
+F
+
+SOLARWIND
+35.8852                 SwNDim   [/cc]
+8.70e4                  SwTDim   [K] (3.8nPa/(1.38e-23*2/cc))/1.2
+-500.0                   SwUxDim  [km/s]
+0.0                     SwUyDim  [km/s]
+0.0                     SwUzDim  [km/s]
+0.0                     SwBxDim  [nT]
+-22.88                  SwByDim  [nT]
+0.0                     SwBzDim  [nT]
+
+#PLASMA
+1.0                     FluidMass [amu]
+1.0                     AverageIonCharge [e]
+1.0                 ElectronTemperatureRatio
+
+TEST
+krylov
+
+KRYLOV
+GMRES                   TypeKrylov  (GMRES, BICGSTAB, CG)
+nul                     TypeInitKrylov (nul, old, explicit, scaled)
+0.001                   ErrorMaxKrylov
+200                     MaxMatvecKrylov
+
+#MINIMUMPRESSURE
+0.00001                   pMinDim
+0.00001                   PeMinDim for electron pressure
+
+#MINIMUMDENSITY
+0.001                     RhoMinDim
+
+#NONCONSERVATIVE
+F                       UseNonConservative
+
+#CONSERVATIVECRITERIA
+0                       nConservCrit
+
+#RESTARTOUTFILE
+one                     TypeRestartOutFile
+
+! Grid structure info
+INCLUDE
+Grid
+
+-------PC BEGIN---------------
+
+#PICUNIT
+1.0			xUnitPicSi  2634.0e3
+30000.0e3               uUnitPicSi  3000 km/s
+
+#PICGRID
+1                       nPicRegion
+-4                       xMinCut
+1                        xMaxCut
+-2                   yMinCut
+ 2                   yMaxCut
+-2                    zMinCut
+ 2                    zMaxCut
+1/64                     DxPic
+1/64                    DyPic
+1/64                    DzPic
+
+#PICADAPT
+F			DoAdaptPic
+-1			Dn
+-1			Dt
+
+#PICPATCH
+4			nCellPerPatch
+
+#REGION
+tailbox        nameregion
+box                    stringshape
+-4.0                               xMin
+-1.2                     yMin
+-0.7                     zMin
+0.0                        xMax
+1.2                      yMax
+0.8                      zMax
+
+#REGION
+mercuryboundary        nameregion
+sphere                    stringshape
+0.0                xPosition
+0.0                        yPosition
+0.0                                zPosition
+1.09                      Radius
+
+#PICREGIONMIN
++tailbox -mercuryboundary
+
+PICCRITERIA
+1			nCriteriaPic
+rho					NameCriter
+-38							CriteriaMin
+9999									CriteriaMax
+
+------PC END---------------
+
+----------------BC-----------------
+#OUTERBOUNDARY
+fixedb1                 TypeCellBc1
+none                    TypeCellBc2
+periodic                TypeCellBc3
+periodic                TypeCellBc4
+periodic                TypeCellBc5
+periodic                TypeCellBc6
+
+#BOXBOUNDARY
+float                   TypeBcXmin
+fixed                   TypeBcXmax
+float                   TypeBcYmin
+float                   TypeBcYmax
+float                   TypeBcZmin
+float                   TypeBcZmax
+
+#BOUNDARYSTATE
+coord1min solid         StringBoundary
+5.0                     BoundaryStateDim_V Rho
+0.0                     BoundaryStateDim_V Ux
+0.0                     BoundaryStateDim_V Uy
+0.0                     BoundaryStateDim_V Uz
+0.0                     BoundaryStateDim_V Bx
+0.0                     BoundaryStateDim_V By
+0.0                     BoundaryStateDim_V Bz
+0.0                     BoundaryStateDim_V Hyp
+0.025                   BoundaryStateDim_V pe
+0.125                   BoundaryStateDim_V p
+
+#BOUNDARYSTATE
+xmaxbox                 StringBoundary
+36.0                     BoundaryStateDim_V Rho
+-500.0                     BoundaryStateDim_V Ux
+0.0                     BoundaryStateDim_V Uy
+0.0                     BoundaryStateDim_V Uz
+0.0                     BoundaryStateDim_V Bx
+23.0                     BoundaryStateDim_V By
+0.0                     BoundaryStateDim_V Bz
+0.0                     BoundaryStateDim_V Hyp
+0.043                   BoundaryStateDim_V Pe
+0.043                   BoundaryStateDim_V p
+
+#SOLIDSTATE
+T                       UseSolidState
+user                    TypeBcSolid
+sphere                  TypeSolidGeometry
+1.0                     rSolid
+5e-3                    SolidLimitDt
+
+-------------end BC--------------
+
+#RESISTIVITY
+T                       UseResistivity
+user                    TypeResistivity
+0.0                     Eta0Si
+
+#USERSWITCH
++init +ic	StringSwitch
+
+#USERINPUTBEGIN --------------------
+
+#PEOVERP
+0.2
+
+RESISTIVEPLANET
+1.0                     PlanetRadius
+5                       nResistivPoints
+1.02                    Radius
+0.0                     Resistivety
+0.95                    Radius
+1.0e13                  Resistivety
+0.85                    Radius
+1.0e13                  Resistivety
+0.83                    Radius
+1.0e7                   Resistivety
+0.8                     Radius
+0.0                     Resistivety
+
+#RESISTIVEPLANET
+5                      nResistivPoints
+1.02                   Radius
+0.0                    Resistivety
+0.95                   Radius
+1.0e13                  Resistivety
+0.85                    Radius
+1.0e13                  Resistivety
+0.83                   Radius
+0                      Resistivety
+0.8                    Radius
+0.0                   Resistivety
+
+RESISTIVEPLANET
+1.0                     PlanetRadius
+5                       nResistivPoints
+1.06                    Radius
+0.0                     Resistivety
+0.95                    Radius
+1.0e13                  Resistivety
+0.90                    Radius
+1.0e13                  Resistivety
+0.88                    Radius
+0.0                     Resistivety
+0.8                     Radius
+0.0                     Resistivety
+
+RESISTIVEPLANET
+1.0                     PlanetRadius
+5                       nResistivPoints
+1.05                    Radius
+0.0                     Resistivity
+0.95                    Radius
+6e11                    Resistivity
+0.70                    Radius
+6e11                    Resistivity
+0.60                    Radius
+6e9                     Resistivity
+0.55                    Radius
+0.0                     Resistivity
+
+#USERINPUTEND ----------------------
+
+#TIMESTEPPING
+2                       nStage
+0.8                     CflExlp
+
+#ELECTRONENTROPY
+F                       UseElectronEntropy
+T                       UseElectronEnergy
+
+#SCHEME
+2                       nOrder (1 or 2)
+Rusanov                   TypeFlux (Roe, Rusanov, Linde, Sokolov
+mc3                     TypeLimiter
+1.2                     LimiterBeta
+
+#TEST
+krylov
+
+#SEMIIMPLICIT
+T                       UseSemiImplicit
+resistivity             TypeSemiImplicit
+
+#UNIFORMAXIS
+T                   UseUniformAxis
+
+#COARSEAXIS
+T                       UseCoarseAxis
+1                       nCoarseLayer
+
+#HALLRESISTIVITY
+T                       UseHallResist (rest of parameters read only if true)
+1.0                    HallFactorMax
+1.0                     HallCmaxFactor
+
+#REGION
+hallbox1                NameRegion
+box tapered             NameHallRegion
+-8                      xMinBox
+-4                      yMinBox
+-4                      zMinBox
+2                       xMaxBox
+4                       yMaxBox
+4                       zMaxBox
+0.5                     Taper
+
+#REGION
+hallbox3                NameRegion
+box tapered             NameHallRegion
+-1.5                     xMinBox
+-0.5                    yMinBox
+-0.5                    zMinBox
+-1.2                     xMaxBox
+0.5                     yMaxBox
+0.8                     zMaxBox
+0.1                     Taper
+
+#REGION
+hallbox2                NameRegion
+box tapered             NameHallRegion
+1.2                    xMinBox
+-3.5                    yMinBox
+-1.8                    zMinBox
+4.5                    xMaxBox
+3.5                     yMaxBox
+1.8                     zMaxBox
+0.1                     Taper
+
+#REGION
+hallsphere              NameRegion
+sphere0 tapered         StringShape
+1.15                    Radius
+0.05                    Taper
+
+#REGION
+polars                  NameRegion
+doubleconez0 tapered    StringShape
+12                      Height
+2.0                     Radius
+0.2                     Taper
+
+#HALLREGION
++hallbox1 -hallsphere
+
+#SAVEINITIAL
+T			DoSaveInitial
+
+#SAVELOGFILE
+T                       DoSaveLogfile
+RAW                     StringLogfile
+1                       DnSaveLogfile
+-1.                     DtSaveLogfile
+
+#SAVEPLOT
+3                       nPlotFiles
+y=0 VAR idl_ascii       StringPlot
+-1                    DnSavePlot
+1                     DtSavePlot
+-1.                     Dx
+{MHD} b1x b1y b1z eta divb dt dx hall pic_active   NameVars
+{default}                       NamePars
+z=0 VAR idl_ascii       StringPlot
+-1                    DnSavePlot
+5                     DtSavePlot
+-1.                     Dx
+{MHD} b1x b1y b1z eta divb dt dx hall pic_active   NameVars
+{default}                       NamePars
+3d VAR tec             plot_strin              StringPlot
+-10000                    DnSavePlot
+1.0                      DtSavePlot
+rho ux uy uz b1x b1y b1z bx by bz p eta jx jy jz dt dtblk cons impl dx     NameVars
+{default} rbody                 NamePars
+
+#END_COMP GM ---------------------------------------
+
+#STOP
+-500                  Maxiteration
+200.0                  tSimulationMax
+
+
+#BEGIN_COMP PC ---------------------------------------------------------------
+
+INCLUDE
+PC/restartIN/FLEKS0_restart.H
+
+#DISCRETIZATION
+0.6                        theta
+0.1                         ratioDivC2C
+
+#ELECTRON
+-100
+
+#TIMESTEPPING
+F			useFixedDt
+0.4			dt/CFL
+
+#MAXBLOCKSIZE
+12
+12
+12
+
+#PARTICLES
+4			Particles per cell in X region 1
+4			Particles per cell in Y
+4			Particles per cell in Z
+
+#SAVEPLOT
+1
+3d fluid amrex planet       plotString
+-1                                dn
+0.05                                 dt
+0.5                                 dx
+
+#NOUTFILE
+1                        nFileField
+1                        nFileParticle
+
+#TPSAVE
+planet                     unit
+10                         dnSave
+
+#PARTICLETRACKER
+T                   useParticleTracker
+
+#TPREGION
+boundary           region
+
+#TPPARTICLES
+1                  particles per cell in X
+1                  particles per cell in Y
+1                  particles per cell in Z
+
+#TPCELLINTERVAL
+2                  nIntervalX
+2                  nIntervalY
+2                  nIntervalZ
+
+#END_COMP PC -----------------------------------------------------------------
+
